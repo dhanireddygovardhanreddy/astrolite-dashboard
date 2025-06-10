@@ -4,7 +4,6 @@ const Header = ({
   theme,
   setTheme,
   onSidebarToggle,
-  onMobileSidebarToggle,
 }) => {
   const [language, setLanguage] = useState(localStorage.getItem('language') || 'EN');
 
@@ -22,12 +21,8 @@ const Header = ({
             alt="Company logo"
             className="logo-image"
           />
-          {/* Desktop sidebar toggle */}
+          {/* SINGLE TOGGLE BUTTON */}
           <button className="sidebar-toggle" onClick={onSidebarToggle}>
-            <i className="fas fa-bars"></i>
-          </button>
-          {/* Mobile sidebar toggle */}
-          <button className="mobile-sidebar-toggle" onClick={onMobileSidebarToggle}>
             <i className="fas fa-bars"></i>
           </button>
         </div>

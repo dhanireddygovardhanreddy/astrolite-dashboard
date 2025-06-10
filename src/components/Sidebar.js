@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
-const Sidebar = ({ collapsed, open, onClose }) => {
+const Sidebar = ({ open, onClose, currentPage, onPageChange }) => {
   const [crmOpen, setCrmOpen] = useState(false);
 
   // Compute sidebar classes based on state
   let sidebarClass = 'sidebar';
-  if (collapsed) sidebarClass += ' collapsed';
   if (open) sidebarClass += ' open';
 
   // Handle submenu toggle
@@ -24,7 +23,10 @@ const Sidebar = ({ collapsed, open, onClose }) => {
       <nav className="sidebar-nav">
         <ul className="nav-list">
           <li className="nav-item active">
-            <a href="/" className="nav-link" onClick={handleNavClick}>
+            <a href="#"
+            className={`nav-link${currentPage === 'dashboard' ? ' active' : ''}`}
+            onClick={(e) => { e.preventDefault(); onPageChange('dashboard'); }}
+            >
               <i className="fas fa-home"></i>
               <span className="nav-text">Home</span>
             </a>
@@ -41,7 +43,11 @@ const Sidebar = ({ collapsed, open, onClose }) => {
             </a>
             <ul className="submenu" style={{ display: crmOpen ? 'flex' : 'none' }}>
               <li>
-                <a href="#" className="nav-link" onClick={handleNavClick}>
+                <a 
+                href="#"
+                  className={`nav-link${currentPage === 'farmers' ? ' active' : ''}`}
+                  onClick={(e) => { e.preventDefault(); onPageChange('farmers'); }}
+                >
                   Farmers
                 </a>
               </li>
