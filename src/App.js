@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
 import MonthlyChart from './charts/MonthlyChart';
 import DailyChart from './charts/DailyChart';
 import SalesChart from './charts/SalesChart';
+import './styles.css'; // Make sure this matches your CSS filename
 
 const statCards1 = [
   {
@@ -65,17 +65,69 @@ const statCards2 = [
 ];
 
 function App() {
+  // Sidebar state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile
+
+  // Theme state
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  // Responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Theme effect
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Sidebar toggle handlers
+  const handleSidebarToggle = () => setSidebarCollapsed((c) => !c);
+  const handleMobileSidebarToggle = () => setSidebarOpen((o) => !o);
+
+  // Click outside to close mobile sidebar
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (
+        sidebarOpen &&
+        window.innerWidth <= 1024 &&
+        !e.target.closest('.sidebar') &&
+        !e.target.closest('.mobile-sidebar-toggle')
+      ) {
+        setSidebarOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [sidebarOpen]);
+
+  // Main content click closes mobile sidebar
+  const handleMainClick = () => {
+    if (window.innerWidth <= 1024 && sidebarOpen) setSidebarOpen(false);
+  };
+
   return (
     <div>
-      <Header theme={theme} setTheme={setTheme} />
-      <Sidebar />
-      <main className="main-content">
+      <Header
+        theme={theme}
+        setTheme={setTheme}
+        onSidebarToggle={handleSidebarToggle}
+        onMobileSidebarToggle={handleMobileSidebarToggle}
+      />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <main className="main-content" onClick={handleMainClick}>
         <div className="dashboard-content">
           <div className="stats-grid">
             {statCards1.map((card, idx) => (

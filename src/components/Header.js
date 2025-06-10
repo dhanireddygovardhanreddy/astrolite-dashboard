@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 
-const Header = ({ theme, setTheme }) => {
+const Header = ({
+  theme,
+  setTheme,
+  onSidebarToggle,
+  onMobileSidebarToggle,
+}) => {
   const [language, setLanguage] = useState(localStorage.getItem('language') || 'EN');
+
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
     localStorage.setItem('language', e.target.value);
@@ -11,11 +17,17 @@ const Header = ({ theme, setTheme }) => {
     <header className="header">
       <div className="header-left">
         <div className="logo">
-          <img src="https://www.astrolitetech.com/assets/uploads/logo.png" alt="Company logo" className="logo-image" />
-          <button className="sidebar-toggle" id="sidebarToggle">
+          <img
+            src="https://www.astrolitetech.com/assets/uploads/logo.png"
+            alt="Company logo"
+            className="logo-image"
+          />
+          {/* Desktop sidebar toggle */}
+          <button className="sidebar-toggle" onClick={onSidebarToggle}>
             <i className="fas fa-bars"></i>
           </button>
-          <button className="mobile-sidebar-toggle" id="mobileSidebarToggle">
+          {/* Mobile sidebar toggle */}
+          <button className="mobile-sidebar-toggle" onClick={onMobileSidebarToggle}>
             <i className="fas fa-bars"></i>
           </button>
         </div>
@@ -27,19 +39,25 @@ const Header = ({ theme, setTheme }) => {
       <div className="header-right">
         <button
           className="theme-toggle"
-          id="themeToggle"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
           <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
         </button>
-        <select className="language-select" value={language} onChange={handleLanguageChange}>
+        <select
+          className="language-select"
+          value={language}
+          onChange={handleLanguageChange}
+        >
           <option value="EN">EN</option>
           <option value="FR">FR</option>
           <option value="DE">DE</option>
           <option value="ES">ES</option>
         </select>
         <div className="notification-container">
-          <button className="notification-btn" onClick={() => alert('You have 3 new notifications!')}>
+          <button
+            className="notification-btn"
+            onClick={() => alert('You have 3 new notifications!')}
+          >
             <span className="notification-badge">3</span>
             <i className="fas fa-bell"></i>
           </button>
