@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import StatCard from "./components/StatCard";
 import MonthlyChart from "./charts/MonthlyChart";
 import DailyChart from "./charts/DailyChart";
 import SalesChart from "./charts/SalesChart";
-import FarmersPage from "./pages/FarmersPage"; 
+import FarmersPage from "./pages/FarmersPage";
 import "./styles.css";
 
 // Example stat card data
@@ -23,18 +24,78 @@ const statCards2 = [
   { icon: "fa-exclamation-triangle", title: "QUALITY ALERTS", value: "12" }
 ];
 
+// Dashboard page as a component
+function Dashboard() {
+  return (
+    <div className="dashboard-content">
+      <div className="stats-grid">
+        {statCards1.map((card, idx) => (
+          <StatCard key={idx} {...card} />
+        ))}
+      </div>
+      <div className="stats-grid">
+        {statCards2.map((card, idx) => (
+          <StatCard key={idx} {...card} />
+        ))}
+      </div>
+      <div className="charts-grid">
+        <div className="chart-card">
+          <div className="chart-header">
+            <div className="chart-indicator"></div>
+            <h3>Monthly Milk Production (L)</h3>
+          </div>
+          <div className="chart-container">
+            <MonthlyChart />
+          </div>
+        </div>
+        <div className="chart-card">
+          <div className="chart-header">
+            <div className="chart-indicator"></div>
+            <h3>Daily Milk Production (L)</h3>
+          </div>
+          <div className="chart-container">
+            <DailyChart />
+          </div>
+        </div>
+        <div className="chart-card">
+          <div className="chart-header">
+            <div className="chart-indicator"></div>
+            <h3>Sales Breakdown</h3>
+          </div>
+          <div className="chart-container">
+            <SalesChart />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Initial state for the farmers form
+const initialForm = {
+  name: "",
+  email: "",
+  phone: "",
+  address: "",
+  landSize: "",
+  crops: ""
+};
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
-  const [currentPage, setCurrentPage] = useState("dashboard");
 
-  useEffect(() => {
+  // Persisted farmers and form state
+  const [farmers, setFarmers] = useState([]);
+  const [form, setForm] = useState(initialForm);
+
+  React.useEffect(() => {
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
   // Responsive sidebar: open on desktop, closed on mobile
-  useEffect(() => {
+  React.useEffect(() => {
     const handleResize = () => {
       setSidebarOpen(window.innerWidth > 1024);
     };
@@ -45,20 +106,9 @@ function App() {
   // Sidebar toggle for both desktop and mobile
   const handleSidebarToggle = () => setSidebarOpen((open) => !open);
 
-  // Handle navigation from sidebar
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    if (window.innerWidth <= 1024) setSidebarOpen(false);
-  };
-
   return (
     <div className="app-container" style={{ display: "flex", width: "100%" }}>
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div style={{ flex: 1, width: "100%" }}>
         <Header
           theme={theme}
@@ -73,51 +123,21 @@ function App() {
             paddingTop: 80
           }}
         >
-          {currentPage === "dashboard" && (
-            <div className="dashboard-content">
-              <div className="stats-grid">
-                {statCards1.map((card, idx) => (
-                  <StatCard key={idx} {...card} />
-                ))}
-              </div>
-              <div className="stats-grid">
-                {statCards2.map((card, idx) => (
-                  <StatCard key={idx} {...card} />
-                ))}
-              </div>
-              <div className="charts-grid">
-                <div className="chart-card">
-                  <div className="chart-header">
-                    <div className="chart-indicator"></div>
-                    <h3>Monthly Milk Production (L)</h3>
-                  </div>
-                  <div className="chart-container">
-                    <MonthlyChart />
-                  </div>
-                </div>
-                <div className="chart-card">
-                  <div className="chart-header">
-                    <div className="chart-indicator"></div>
-                    <h3>Daily Milk Production (L)</h3>
-                  </div>
-                  <div className="chart-container">
-                    <DailyChart />
-                  </div>
-                </div>
-                <div className="chart-card">
-                  <div className="chart-header">
-                    <div className="chart-indicator"></div>
-                    <h3>Sales Breakdown</h3>
-                  </div>
-                  <div className="chart-container">
-                    <SalesChart />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {currentPage === "farmers" && <FarmersPage />}
-          {/* Add more pages as needed */}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route
+              path="/farmers"
+              element={
+                <FarmersPage
+                  farmers={farmers}
+                  setFarmers={setFarmers}
+                  form={form}
+                  setForm={setForm}
+                />
+              }
+            />
+            {/* Add more routes as needed */}
+          </Routes>
         </main>
       </div>
     </div>
