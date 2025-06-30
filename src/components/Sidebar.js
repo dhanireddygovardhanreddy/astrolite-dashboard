@@ -5,51 +5,51 @@ const Sidebar = ({ open, onClose }) => {
   const [crmOpen, setCrmOpen] = useState(false);
   const location = useLocation();
 
-  // Compute sidebar classes based on state
-  let sidebarClass = 'sidebar';
+  // Sidebar open/close classes
+  let sidebarClass = 'modern-sidebar';
   if (open) sidebarClass += ' open';
 
-  // Handle submenu toggle
+  // Submenu toggle
   const handleCrmToggle = (e) => {
     e.preventDefault();
-    setCrmOpen((open) => !open);
+    setCrmOpen(open => !open);
   };
 
-  // Optional: close sidebar when a nav link is clicked (mobile)
+  // Close sidebar on nav link click (mobile)
   const handleNavClick = () => {
     if (window.innerWidth <= 1024 && onClose) onClose();
   };
 
   return (
     <aside className={sidebarClass}>
-      <nav className="sidebar-nav">
-        <ul className="nav-list">
-          <li className="nav-item">
+      <nav className="modern-sidebar-nav">
+        <ul className="modern-nav-list">
+          <li>
             <NavLink
               to="/"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
               end
             >
               <i className="fas fa-home"></i>
-              <span className="nav-text">Home</span>
+              <span>Home</span>
             </NavLink>
           </li>
-          <li className={`nav-item has-submenu${crmOpen ? ' open' : ''}`}>
+          <li className={`has-submenu${crmOpen ? ' open' : ''}`}>
             <a
               href="#"
-              className="nav-link submenu-toggle"
+              className="modern-nav-link submenu-toggle"
               onClick={handleCrmToggle}
             >
               <i className="fas fa-users"></i>
               <span>CRM</span>
               <i className="fas fa-chevron-down submenu-arrow"></i>
             </a>
-            <ul className="submenu" style={{ display: crmOpen ? 'flex' : 'none' }}>
+            <ul className="modern-submenu" style={{ display: crmOpen ? 'flex' : 'none' }}>
               <li>
                 <NavLink
                   to="/farmers"
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
                   onClick={handleNavClick}
                 >
                   Farmers
@@ -57,8 +57,8 @@ const Sidebar = ({ open, onClose }) => {
               </li>
               <li>
                 <NavLink
-                  to="/milk-tracking"
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  to="/milk"
+                  className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
                   onClick={handleNavClick}
                 >
                   Milk Tracking
@@ -67,7 +67,7 @@ const Sidebar = ({ open, onClose }) => {
               <li>
                 <NavLink
                   to="/payments"
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
                   onClick={handleNavClick}
                 >
                   Payments
@@ -75,64 +75,64 @@ const Sidebar = ({ open, onClose }) => {
               </li>
             </ul>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
               to="/sales"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-chart-bar"></i>
-              <span className="nav-text">Sales</span>
+              <span>Sales</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
-              to="/supply"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              to="/logistics"
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-truck"></i>
-              <span className="nav-text">Supply</span>
+              <span>Supply</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
               to="/production"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-industry"></i>
-              <span className="nav-text">Production Management</span>
+              <span>Production</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
               to="/quality"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-clipboard-list"></i>
-              <span className="nav-text">Quality Reports</span>
+              <span>Quality</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
               to="/inventory"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-boxes"></i>
-              <span className="nav-text">Inventory</span>
+              <span>Inventory</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          <li>
             <NavLink
               to="/investment"
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `modern-nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
               <i className="fas fa-chart-line"></i>
-              <span className="nav-text">Investment Statistics</span>
+              <span>Investment</span>
             </NavLink>
           </li>
         </ul>
