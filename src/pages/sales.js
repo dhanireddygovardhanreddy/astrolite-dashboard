@@ -28,6 +28,7 @@ const initialSales = [
 ];
 
 export default function SalesDashboard() {
+  
   const [sales, setSales] = useState(initialSales);
   const [form, setForm] = useState({
     id: "",

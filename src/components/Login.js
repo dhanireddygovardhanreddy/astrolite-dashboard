@@ -84,6 +84,10 @@ export default function Login() {
           <button type="button" className="guest-btn" onClick={handleGuest}>
             Continue as Guest
           </button>
+          {/* <div class="g-signin2" data-onsuccess="onSignIn">
+            <button type="button">Sign in with google</button>
+          </div> */}
+
           <p className="footer-text">Welcome back! Please login to continue.</p>
         </form>
       </div>

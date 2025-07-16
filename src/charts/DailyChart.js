@@ -1,31 +1,36 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
-const DailyChart = () => {
+const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const DailyChart = ({ records }) => {
   const chartRef = useRef();
 
   useEffect(() => {
+    const milkData = Array(7).fill(0); // Sunday to Saturday
+
+    records.forEach(record => {
+      if (!record.date || !record.quantity) return;
+
+      const date = new Date(record.date);
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+      const quantity = parseFloat(record.quantity);
+      milkData[day] += isNaN(quantity) ? 0 : quantity;
+    });
+
     const chart = new Chart(chartRef.current, {
       type: 'bar',
       data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        labels: dayLabels,
         datasets: [
           {
-            label: 'Cow Milk (L)',
-            data: [950, 1050, 980, 1100, 1020, 980, 900],
-            backgroundColor: '#4ade80',
-            borderColor: '#4ade80',
+            label: 'Milk (L)',
+            data: milkData,
+            backgroundColor: '#38bdf8',
+            borderColor: '#0ea5e9',
             borderWidth: 1,
             barPercentage: 0.6,
-          },
-          {
-            label: 'Buffalo Milk (L)',
-            data: [850, 920, 880, 950, 900, 870, 820],
-            backgroundColor: '#a3e635',
-            borderColor: '#a3e635',
-            borderWidth: 1,
-            barPercentage: 0.6,
-          },
+          }
         ],
       },
       options: {
@@ -43,12 +48,16 @@ const DailyChart = () => {
             title: { display: true, text: 'Liters' },
             ticks: { callback: value => value + ' L' },
           },
-          x: { title: { display: true, text: 'Day' } },
+          x: {
+            title: { display: true, text: 'Day of Week' },
+          },
         },
       },
     });
+
     return () => chart.destroy();
-  }, []);
+  }, [records]);
+
   return <canvas ref={chartRef}></canvas>;
 };
 

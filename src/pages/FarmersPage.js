@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
 
 // 1. Constant initial farmers data
-const initialFarmers = [
-  {
-    id: 1,
-    farmerid: "5555",
-    name: "Govardhan",
-    phone: "9390936834",
-    village: "Proddatur",
-    date: "2025-03-24",
-    landSize: "5"
-  },
-  {
-    id: 2,
-    farmerid: "1234",
-    name: "Lakshmi",
-    phone: "9876543210",
-    village: "Kadapa",
-    date: "2025-03-25",
-    landSize: "3"
-  }
-];
+// const initialFarmers = [
+//   {
+//     id: 1,
+//     farmerid: "5555",
+//     name: "Govardhan",
+//     phone: "9390936834",
+//     village: "Proddatur",
+//     date: "2025-03-24",
+//     landSize: "5"
+//   },
+//   {
+//     id: 2,
+//     farmerid: "1234",
+//     name: "Lakshmi",
+//     phone: "9876543210",
+//     village: "Kadapa",
+//     date: "2025-03-25",
+//     landSize: "3"
+//   }
+// ];
 
 // 2. Initial form state
 const initialForm = {
@@ -32,13 +32,8 @@ const initialForm = {
   landSize: "",
 };
 
-const FarmersPage = () => {
+const FarmersPage = ({ farmers, setFarmers, form, setForm }) => {
   // 3. State with localStorage persistence
-  const [farmers, setFarmers] = useState(() => {
-    const saved = localStorage.getItem("farmers");
-    return saved ? JSON.parse(saved) : initialFarmers;
-  });
-  const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
   const [viewingFarmer, setViewingFarmer] = useState(null);
 
@@ -96,8 +91,9 @@ const FarmersPage = () => {
 
   return (
     <div className="farmers-page">
-      <h2>Farmers Dashboard</h2>
-
+      <div className="left">
+        <h2>Farmers Dashboard</h2>
+      
       {/* Farmer Form */}
       {!viewingFarmer && (
         <form className="farmers-form" onSubmit={handleSubmit}>
@@ -154,14 +150,57 @@ const FarmersPage = () => {
             inputMode="numeric"
             pattern="\d+"
           />
-          <button type="submit" className="btn-primary">
+          {/* <button type="submit" className="btn-primary">
             {editingId ? "Update Farmer" : "Add Farmer"}
           </button>
+          
           {(editingId || viewingFarmer) && (
             <button type="button" className="btn-secondary" onClick={handleCancel}>
               Cancel
             </button>
           )}
+          {!editingId && !viewingFarmer && (
+  <button
+    onClick={() => {
+      if (window.confirm("Clear all farmers?")) {
+        localStorage.removeItem("farmers");
+        setFarmers([]);
+      }
+    }}
+    className="btn-primary"
+  >
+    Reset All
+  </button> */}
+
+  <div className="button-row">
+  <button type="submit" className="btn-primary">
+    {editingId ? "Update Farmer" : "Add Farmer"}
+  </button>
+
+  {!editingId && !viewingFarmer && (
+    <button
+      type="button"
+      onClick={() => {
+        if (window.confirm("Clear all farmers?")) {
+          localStorage.removeItem("farmers");
+          setFarmers([]);
+        }
+      }}
+      className="btn-primary"
+    >
+      Reset All
+    </button>
+  )}
+
+  {(editingId || viewingFarmer) && (
+            <button type="button" className="btn-secondary" onClick={handleCancel}>
+              Cancel
+            </button>
+          )}
+</div>
+
+{/* )} */}
+
         </form>
       )}
 
@@ -242,6 +281,11 @@ const FarmersPage = () => {
             )}
           </tbody>
         </table>
+      </div>
+      </div>
+      <div className="right">
+            <img src="/farmer.jpg" alt="farmer image" />
+
       </div>
     </div>
   );

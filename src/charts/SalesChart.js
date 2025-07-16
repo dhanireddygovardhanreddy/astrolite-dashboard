@@ -1,53 +1,65 @@
-import React, { useEffect, useRef } from 'react';
-import Chart from 'chart.js/auto';
+import React, { useMemo } from 'react';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-const SalesChart = () => {
-  const chartRef = useRef();
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-  useEffect(() => {
-    const chart = new Chart(chartRef.current, {
-      type: 'doughnut', // Use doughnut for concentric rings
-      data: {
-        labels: ['Retail', 'Wholesale', 'Exports'],
-        datasets: [
-          {
-            label: '2024',
-            data: [45, 35, 20],
-            backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444'],
-            borderWidth: 2,
-          },
-          {
-            label: '2025',
-            data: [40, 30, 30],
-            backgroundColor: ['#a3e635', '#f472b6', '#38bdf8'],
-            borderWidth: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { usePointStyle: true, padding: 20 },
-          },
-          tooltip: {
-            callbacks: {
-              label: context => {
-                const label = context.label || '';
-                const value = context.raw;
-                const datasetLabel = context.dataset.label || '';
-                return `${datasetLabel} - ${label}: ${value}`;
-              },
-            },
-          },
-        },
-      },
+export default function SalesChartFromPayments({ payments }) {
+  // Group payments by month (e.g., "2025-07")
+  const monthlyTotals = useMemo(() => {
+    const monthMap = {};
+    payments.forEach(p => {
+      if (!p.date) return;
+      const month = p.date.slice(0, 7); // Extract "YYYY-MM"
+      const amt = parseFloat(p.amount) || 0;
+      monthMap[month] = (monthMap[month] || 0) + amt;
     });
-    return () => chart.destroy();
-  }, []);
-  return <canvas ref={chartRef}></canvas>;
-};
+    return monthMap;
+  }, [payments]);
 
-export default SalesChart;
+  // Prepare chart data
+  const months = Object.keys(monthlyTotals).sort();
+  const amounts = months.map(m => monthlyTotals[m]);
+
+  const barData = {
+    labels: months,
+    datasets: [{
+      label: "Monthly Payments (₹)",
+      data: amounts,
+      // backgroundColor: "#60a5fa",
+      borderRadius: 6,
+    }],
+  };
+
+  const options = {
+    responsive: true,
+    // plugins: {
+    //   legend: { display: true },
+    //   title: {
+    //     display: true,
+    //     // text: "Monthly Payments",
+    //     font: { size: 18 }
+    //   },
+    // },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: value => `₹${value}` }
+      }
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: 16, borderRadius: 12 }}>
+      <Bar data={barData} options={options} />
+    </div>
+  );
+}

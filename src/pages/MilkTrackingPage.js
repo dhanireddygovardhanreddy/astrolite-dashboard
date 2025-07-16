@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const initialForm = {
   recordid: "",
@@ -7,40 +9,44 @@ const initialForm = {
   quantity: "",
   fatContent: "",
   snf: "",
-//   remarks: "",
 };
 
-const MilkTrackingPage = ({
-  form,
-  setForm,
-  records,
-  setRecords
-}) => {
+const MilkTrackingPage = ({ form, setForm, records, setRecords }) => {
   const [editingId, setEditingId] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
+
+  // ✅ Load records from localStorage when component mounts
+  useEffect(() => {
+    const storedRecords = JSON.parse(localStorage.getItem("milkRecords")) || [];
+    setRecords(storedRecords);
+  }, []);
+
+  // ✅ Save records to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("milkRecords", JSON.stringify(records));
+  }, [records]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.farmerName.trim()) return;
-    if (editingId !== null) {
-      setRecords((prev) =>
-        prev.map((r) =>
-          r.id === editingId ? { ...form, id: editingId } : r
-        )
-      );
-      setEditingId(null);
-    } else {
-      setRecords((prev) => [
-        ...prev,
-        { ...form, id: Date.now() }
-      ]);
-    }
-    setForm(initialForm);
-  };
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (!form.farmerName.trim()) return;
+
+  if (editingId !== null) {
+    setRecords((prev) =>
+      prev.map((r) => (r.id === editingId ? { ...form, id: editingId } : r))
+    );
+    setEditingId(null);
+    toast.success("Record updated!");
+  } else {
+    setRecords((prev) => [...prev, { ...form, id: Date.now() }]);
+    toast.success("Record added!");
+  }
+
+  setForm(initialForm);
+};
 
   const handleEdit = (record) => {
     setForm(record);
@@ -124,21 +130,33 @@ const MilkTrackingPage = ({
             inputMode="decimal"
             pattern="^\d+(\.\d{1,2})?$"
           />
-          {/* <input
-            name="remarks"
-            placeholder="Remarks"
-            value={form.remarks}
-            onChange={handleChange}
-          /> */}
-
-          <button type="submit" className="btn-primary">
+          <div className="button-row">
+            <button type="submit" className="btn-primary">
             {editingId ? "Update Record" : "Add Record"}
           </button>
+          <button
+      type="button"
+      onClick={() => {
+        if (window.confirm("Clear all Records?")) {
+          localStorage.removeItem("records");
+          setRecords([]);
+        }
+      }}
+      className="btn-primary"
+    >
+      Reset All
+    </button>
           {(editingId || viewingRecord) && (
-            <button type="button" className="btn-secondary" onClick={handleCancel}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleCancel}
+            >
               Cancel
             </button>
           )}
+          </div>
+          
         </form>
       )}
 
@@ -146,17 +164,35 @@ const MilkTrackingPage = ({
       {viewingRecord && (
         <div className="milk-view farmer-view">
           <h3>Milk Record Details</h3>
-          <p><b>Record ID:</b> {viewingRecord.recordid}</p>
-          <p><b>Date:</b> {viewingRecord.date}</p>
-          <p><b>Farmer Name:</b> {viewingRecord.farmerName}</p>
-          <p><b>Quantity (litres):</b> {viewingRecord.quantity}</p>
-          <p><b>Fat Content (%):</b> {viewingRecord.fatContent}</p>
-          <p><b>SNF (%):</b> {viewingRecord.snf}</p>
-          {/* <p><b>Remarks:</b> {viewingRecord.remarks}</p> */}
-          <button className="btn-secondary" onClick={handleCancel} style={{ marginRight: 8 }}>
+          <p>
+            <b>Record ID:</b> {viewingRecord.recordid}
+          </p>
+          <p>
+            <b>Date:</b> {viewingRecord.date}
+          </p>
+          <p>
+            <b>Farmer Name:</b> {viewingRecord.farmerName}
+          </p>
+          <p>
+            <b>Quantity (litres):</b> {viewingRecord.quantity}
+          </p>
+          <p>
+            <b>Fat Content (%):</b> {viewingRecord.fatContent}
+          </p>
+          <p>
+            <b>SNF (%):</b> {viewingRecord.snf}
+          </p>
+          <button
+            className="btn-secondary"
+            onClick={handleCancel}
+            style={{ marginRight: 8 }}
+          >
             Close
           </button>
-          <button className="btn-primary" onClick={() => handleEdit(viewingRecord)}>
+          <button
+            className="btn-primary"
+            onClick={() => handleEdit(viewingRecord)}
+          >
             Edit
           </button>
         </div>
@@ -173,7 +209,6 @@ const MilkTrackingPage = ({
               <th>Quantity (litres)</th>
               <th>Fat Content (%)</th>
               <th>SNF (%)</th>
-              {/* <th>Remarks</th> */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -193,7 +228,6 @@ const MilkTrackingPage = ({
                   <td>{record.quantity}</td>
                   <td>{record.fatContent}</td>
                   <td>{record.snf}</td>
-                  {/* <td>{record.remarks}</td> */}
                   <td>
                     <button
                       className="icon-btn"

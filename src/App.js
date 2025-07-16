@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
@@ -21,15 +22,11 @@ import InvestmentsDashboard from "./pages/investments"
 import ProductionDashboard from "./pages/productionmanagement"
 import SalesDashboard from "./pages/sales";
 import DailySalesChart from "./charts/Dailysales";
+import { ToastContainer } from "react-toastify";
 
 
 // Example stat card data
-const statCards1 = [
-  { icon: "fa-wine-bottle", title: "TOTAL MILK", value: "45,200 L", change: "12.5%", changeType: "positive" },
-  { icon: "fa-rupee-sign", title: "TOTAL SALES", value: "₹2,500,000", change: "18.2%", changeType: "positive" },
-  { icon: "fa-users", title: "NUMBER OF FARMERS", value: "9,000+", change: "5.7%", changeType: "positive" },
-  { icon: "fa-truck", title: "DISTRIBUTORS", value: "1,800", change: "8.3%", changeType: "positive" }
-];
+
 
 // const statCards2 = [
 //   { icon: "fa-chart-line", title: "GROWTH RATE", value: "18.0%" },
@@ -42,8 +39,9 @@ const statCards1 = [
 
 
 // Dashboard page as a component
-function Dashboard({ farmers, records, payments }) {
-
+function Dashboard({ farmers, records, payments, sales }) {
+  const totalMilk = records.reduce((sum, r) => sum + parseFloat(r.quantity || 0), 0).toFixed(2);
+  const totalSale = payments.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0).toFixed(2);
   const [productionType, setProductionType] = useState("monthly");
   const [selectedTable, setSelectedTable] = useState("farmers");
   const [productionsType, setProductionsType] = useState("monthly");
@@ -51,6 +49,8 @@ function Dashboard({ farmers, records, payments }) {
   const recentFarmers = [...farmers].slice(-5).reverse();
   const recentMilk = [...records].slice(-5).reverse();
   const recentPayments = [...payments].slice(-5).reverse();
+  // const [sales, setSales] = useState([]); // <-- Make sure this is added
+
 
   let columns, data;
   if (selectedTable === "farmers") {
@@ -63,6 +63,13 @@ function Dashboard({ farmers, records, payments }) {
     columns = paymentColumns;
     data = recentPayments;
   }
+
+  const statCards1 = [
+  { icon: "fa-wine-bottle", title: "TOTAL MILK", value: `${totalMilk} L`, change: "12.5%", changeType: "positive" },
+  { icon: "fa-rupee-sign", title: "TOTAL SALES", value: `${totalSale}`, change: "18.2%", changeType: "positive" },
+  { icon: "fa-users", title: "NUMBER OF FARMERS", value: `${farmers.length}`, change: "5.7%", changeType: "positive" },
+  { icon: "fa-truck", title: "DISTRIBUTORS", value: "1,800", change: "8.3%", changeType: "positive" }
+];
 
   return (
     <div className="dashboard-content">
@@ -80,7 +87,7 @@ function Dashboard({ farmers, records, payments }) {
         <div className="chart-card">
           <div className="chart-header">
             <div className="chart-indicator"></div>
-            <h3>Milk Production (L)</h3>
+            <h3 >Milk Production (L)</h3>
              <select
                  className="custom-select"
                  value={productionType}
@@ -91,7 +98,7 @@ function Dashboard({ farmers, records, payments }) {
              </select> 
           </div>
           <div className="chart-container">
-            {productionType === "monthly" ? <MonthlyChart /> : <DailyChart />}
+            {productionType === "monthly" ? (<MonthlyChart records={records} /> ):( <DailyChart records={records} />)}
           </div>
         </div>
         {/* <div className="chart-card">
@@ -117,7 +124,7 @@ function Dashboard({ farmers, records, payments }) {
              </select>
           </div>
           <div className="chart-container">
-            {productionsType === "monthly" ? <SalesChart /> : <DailySalesChart />}
+            {productionsType === "monthly" ? <SalesChart payments={payments || []} /> : <DailySalesChart payments={payments} />}
           </div>
         </div>
       </div>
@@ -197,7 +204,10 @@ function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   // Persisted farmers and form state
-  const [farmers, setFarmers] = useState([]);
+  const [farmers, setFarmers] = useState(() => {
+  const saved = localStorage.getItem("farmers");
+  return saved ? JSON.parse(saved) : [];
+});
   const [form, setForm] = useState(initialForm);
 
   // State for milk tracking
@@ -206,9 +216,16 @@ function App() {
 
   // payments Dashboard
   const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
-  const [payments, setPayments] = useState([]);
+  const [payments, setPayments] = useState(() =>{
+    const saved = localStorage.getItem("payments");
+    return saved ? JSON.parse(saved) : [];
+  });
   
   const { user } = useUser();
+useEffect(() => {
+  localStorage.setItem("payments", JSON.stringify(payments));
+}, [payments]);
+
 
   React.useEffect(() => {
     document.body.setAttribute("data-theme", theme);
@@ -326,6 +343,8 @@ export default function Apps() {
   return (
     <UserProvider>
       <App />
+      <ToastContainer />
     </UserProvider>
+    
   );
 }

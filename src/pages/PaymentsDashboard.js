@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Line } from "react-chartjs-2";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,27 +33,40 @@ const PaymentsDashboard = ({
   const [viewingPayment, setViewingPayment] = useState(null);
 
   // --- Chart Data Preparation ---
-  const chartData = useMemo(() => {
-    const dateMap = {};
-    payments.forEach((p) => {
-      if (!p.date) return;
-      if (!dateMap[p.date]) dateMap[p.date] = 0;
-      const amt = parseFloat(p.amount) || 0;
-      dateMap[p.date] += amt;
-    });
-    const labels = Object.keys(dateMap).sort();
-    const data = labels.map((date) => dateMap[date]);
-    return {
-      labels,
-      datasets: [
-        {
-          label: "Total Payments (₹)",
-          data,
-          backgroundColor: "#3b82f6",
-        },
-      ],
-    };
-  }, [payments]);
+const chartData = useMemo(() => {
+  if (!Array.isArray(payments)) return {
+    labels: [],
+    datasets: [],
+  };
+
+  const monthlyMap = {};
+
+  payments.forEach((p) => {
+    if (!p.date) return;
+    const month = p.date.slice(0, 7); // 'YYYY-MM'
+    const amt = parseFloat(p.amount) || 0;
+    monthlyMap[month] = (monthlyMap[month] || 0) + amt;
+  });
+
+  const sortedMonths = Object.keys(monthlyMap).sort();
+  const data = sortedMonths.map((month) => monthlyMap[month]);
+
+  return {
+    labels: sortedMonths,
+    datasets: [
+      {
+        label: "Monthly Payments (₹)",
+        data,
+        backgroundColor: "#3b82f6",
+        borderColor: "#2563eb",
+        fill: true,
+        tension: 0.3,
+      },
+    ],
+  };
+}, [payments]);
+
+
 
   const chartOptions = {
     responsive: true,
@@ -79,11 +94,13 @@ const PaymentsDashboard = ({
         )
       );
       setEditingId(null);
+      toast.success("Payment updated!");
     } else {
       setPayments((prev) => [
         ...prev,
         { ...form, id: Date.now() }
       ]);
+      toast.success("Payment added!");
     }
     setForm(initialForm);
   };
@@ -179,15 +196,29 @@ const PaymentsDashboard = ({
             <option value="Pending">Pending</option>
             <option value="Failed">Failed</option>
           </select>
-
-          <button type="submit" className="btn-primary">
+<div className="button-row">
+  <button type="submit" className="btn-primary">
             {editingId ? "Update Payment" : "Add Payment"}
           </button>
+          <button
+      type="button"
+      onClick={() => {
+        if (window.confirm("Clear all payments?")) {
+          localStorage.removeItem("payments");
+          setPayments([]);
+        }
+      }}
+      className="btn-primary"
+    >
+      Reset All
+    </button>
           {(editingId || viewingPayment) && (
             <button type="button" className="btn-secondary" onClick={handleCancel}>
               Cancel
             </button>
           )}
+</div>
+          
         </form>
       )}
 
@@ -285,5 +316,6 @@ const PaymentsDashboard = ({
     </div>
   );
 };
+
 
 export default PaymentsDashboard;
